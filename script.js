@@ -22,32 +22,46 @@ const currPlayerTurn = () => `It is ${currPlayer} turn!`;
 displayStatus.innerHTML = currPlayerTurn();
 
 const handleCellPlayed = (clickedCell, cellIndex) => {
-    gameState[cellIndex] = currPlayer;
-    clickedCell.innerHTML = currPlayer;
+  gameState[cellIndex] = currPlayer;
+  clickedCell.innerHTML = currPlayer;
 };
 
-const handlePlayerChange = () => {};
+const handlePlayerChange = () => {
+  currPlayer = currPlayer === "X" ? "O" : "X";
+  displayStatus.innerHTML = currPlayerTurn();
+};
+
 const handleResultValidation = () => {
-    let roundWon = false;
-    for(let i = 0; i < 8; i++) {
-        const winCondition = winningConditions[i];
-        let a = gameState[winCondition[0]];
-        let b = gameState[winCondition[1]];
-        let c = gameState[winCondition[2]];
+  let roundWon = false;
+  for (let i = 0; i < 8; i++) {
+    const winCondition = winningConditions[i];
+    let a = gameState[winCondition[0]];
+    let b = gameState[winCondition[1]];
+    let c = gameState[winCondition[2]];
 
-        if (a === '' || b === '' || c === '') continue;
-        if (a === b && b === c) {
-            roundWon = true;
-            break;
-        }
-    }
-    if(roundWon) {
-        displayStatus.innerHTML = winningMessage;
-        gameActive = false;
-        return;
-    }
+    if (a === "" || b === "" || c === "") continue;
+    if (a === b && b === c) {
+      roundWon = true;
 
-    // continue with draw
+      break;
+    }
+  }
+
+  if (roundWon) {
+    handlePlayerChange();
+    displayStatus.innerHTML = winningMessage();
+    gameActive = false;
+
+    return;
+  }
+
+  let roundDraw = !gameState.includes("");
+
+  if (roundDraw) {
+    displayStatus.innerHTML = drawMessage();
+    gameActive = false;
+    return;
+  }
 };
 
 const handleCellClick = (e) => {
@@ -55,9 +69,17 @@ const handleCellClick = (e) => {
   const cellIndex = parseInt(clickedCell.getAttribute("data-cell-index"));
   if (gameState[cellIndex] !== "" || !gameActive) return;
   handleCellPlayed(clickedCell, cellIndex);
+  handlePlayerChange();
   handleResultValidation();
 };
-const handleRestartGame = () => {};
+
+const handleRestartGame = () => {
+  gameActive = true;
+  currPlayer = "X";
+  gameState = ["", "", "", "", "", "", "", "", ""];
+  displayStatus.innerHTML = currPlayerTurn();
+  document.querySelectorAll(".cell").forEach((cell) => (cell.innerHTML = ""));
+};
 
 document
   .querySelectorAll(".cell")
